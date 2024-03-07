@@ -115,10 +115,8 @@
                     result += rollTheDice(ranges[i])+"-";
                 }
                 result = result.slice(0,result.length-1);
-                console.log(result);
                 trials++;
                 const row = document.createElement("tr");
-                    // tr: table row
                 const t = document.createElement("td");
                 const ret = document.createElement("td");
                 t.textContent = trials;
@@ -153,11 +151,12 @@
         <h1>同様に確からしくない5d18</h1>
         1-18の出目があるサイコロを5回ふって、結果を表示します。<br>
         各サイコロにつき出目の確率が異なります。<br>
-        <button class="btn btn-large" onclick="appendResult()">サイコロを振る</button> <button class="btn btn-large" onclick = "deleteAllRows()">リセット</button><br>
+        <button style="font-size: 18px; margin-right: 10px;" onclick="appendResult()">サイコロを振る</button>
+        <button style="font-size: 18px;" onclick = "deleteAllRows()">リセット</button><br>
         <table id="results">
             <tr>
-              <th>試行回数</th>
-              <th>結果</th>
+              <th style="text-align: left;width: 8ch;">試行回数</th>
+              <th style="text-align: left;width: 15ch">結果</th>
             </tr>
           </table>
     </body>
