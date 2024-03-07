@@ -4,10 +4,23 @@
         <meta charset='utf-8'>
         <title>K.Leid's web site</title>
         <meta name='viewport' content='width=device-width, initial-scale=1'>
+        <script>
+            function init(){
+                // ブラウザの言語設定を取得
+                const lang = navigator.language;
+                console.log(lang);
+                // 言語設定に基づいて文章を切り替え
+                if (lang === "ja") {
+                // 日本語の文章を表示
+                } else {
+                // 英語の文章を表示
+                }
+            }
+        </script>
     </head>
-<body>
-<h1>Welcome to Kuriyamaleid's web site!</h1>
-<p>You can use what I made here. ↓↓</p>
-<a href = "https://kuriyamaleid16.github.io/exec/system/NotEquallyLikelyDice.html", target="_blank">TheNotEquallyLikelyDice</a>
-</body>
+    <body onload = "init()">
+        <h1 id="h1.greet">Welcome to Kuriyamaleid's web site!</h1>
+        <p id="p.url.discription">You can use what I made here. ↓↓</p>
+        <a href = "https://kuriyamaleid16.github.io/exec/system/NotEquallyLikelyDice.html", target="_blank", id="a.dice">TheNotEquallyLikelyDice</a>
+    </body>
 </html>
