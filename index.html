@@ -6,26 +6,31 @@
         <meta name='viewport' content='width=device-width, initial-scale=1'>
         <script>
             function init(){
-                // // ブラウザの言語設定を取得
-                // const lang = navigator.language;
-                // console.log(lang);
-                // // 言語設定に基づいて文章を切り替え
-                // if (lang === "ja") {
-                // // 日本語の文章を表示
-                // } else {
-                // // 英語の文章を表示
-                // }
-                fetch("https://kuriyamaleid16.github.io/index.sentences.json")
+                // ブラウザの言語設定を取得
+                const lang = navigator.language;
+                // 言語設定に基づいて文章を切り替え
+                if (lang === "ja") {
+                    setSentences(lang);
+                } else {
+                    setSentences("en");
+                }
+            }
+            function setSentences(lang){
+                lang = "_" + lang;
+                fetch("https://kuriyamaleid16.github.io/index.sentences"+lang+".json")
                     .then(r=>r.json())
                     .then(sentences=>{
-                        console.log(sentences.h1.greet);
+                        for (const key in sentences) {
+                            document.getElementById(key).textContent = sentences[key]; 
+                        }
                     });
             }
         </script>
     </head>
     <body onload = "init()">
-        <h1 id="h1.greet">Welcome to Kuriyamaleid's web site!</h1>
-        <p id="p.url.discription">You can use what I made here. ↓↓</p>
-        <a href = "https://kuriyamaleid16.github.io/exec/system/NotEquallyLikelyDice.html", target="_blank", id="a.dice">TheNotEquallyLikelyDice</a>
+        <h1><span id="h1_greet"></span></h1>
+        language: <button onclick="setSentences('en')">English</button> <button onclick="setSentences('ja')">Japanese</button>
+        <p><span id="p_url_discription"></span></p>
+        <a href = "https://kuriyamaleid16.github.io/exec/system/NotEquallyLikelyDice.html", target="_blank"><span id="a_dice"></span></a>
     </body>
 </html>
