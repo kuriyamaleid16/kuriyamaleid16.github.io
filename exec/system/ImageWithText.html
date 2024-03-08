@@ -49,6 +49,14 @@
             ctx.clearRect(0,0,canv.width,canv.height);
             ctx.drawImage(image, 0, 0, image.width*scale, image.height*scale);
         }
+        function saveAsImage(){
+            const dataURL = canv.toDataURL();
+            // 画像の保存
+            const a = document.createElement("a");
+            a.href = dataURL;
+            a.download = "IWTSample.jpg";
+            a.click();
+        }
     </script>
 </head>
 <body onload="init()">
@@ -60,6 +68,8 @@
     <!-- <input type="file" id="file-input" multiple accept=".jpg, .png, .jpeg"><br> -->
     <span>↓キャンバス↓</span><br>
     <canvas id="canvas" width="500" height="500"></canvas><br>
-    <button onclick="enlarge()" style="margin-right: 10px">拡大</button><button onclick="shrink()">縮小</button>
+    <button onclick="enlarge()" style="margin-right: 10px">拡大</button>
+    <button onclick="shrink()">縮小</button><br>
+    <button onclick="saveAsImage()" style="margin-top: 5px">保存</button>
 </body>
 </html>
