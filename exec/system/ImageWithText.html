@@ -8,20 +8,79 @@
     <!-- <link rel='stylesheet' type='text/css' media='screen' href='main.css'> -->
     <!-- <script src='main.js'></script> -->
     <script>
-        let images;
         let image;
         let fileInput;
+        let textInput;
         let canv;
         let ctx;
+        // canvas内のドラッグ検知
+        let isDowning = false;
+        // 画像に関する設定
         let scale = 1;
+        let x = 0;
+        let y = 0;
+        let dx = 0;
+        let dy = 0;
+        let downStartX = 0;
+        let downStartY = 0;
+        let headerExists = false;
+        // ヘッダーテキスト
+        let text = "";
+        let textExists = false;
+        // ヘッダーカラー
+        let hcRed = "AA";
+        let hcGreen = "AA";
+        let hcBlue = "AA";
+        // フォントカラー
+        let fcRed = "00";
+        let fcGreen = "00";
+        let fcBlue = "00";
+
+        function initImageSettings(){
+            scale = 1;
+            x = 0;
+            y = 0;
+            dx = 0;
+            dy = 0;
+            downStartX = 0;
+            downStartY = 0;
+        }
         function init(){
             fileInput = document.getElementById("file-input");
             canv = document.getElementById("canvas");
             ctx = canv.getContext("2d");
+            canv.addEventListener("mousemove",(event)=>{
+                if (isDowning) {
+                    dx = event.offsetX - downStartX;
+                    dy = event.offsetY - downStartY;
+                    draw(image, x+dx, y+dy);
+                }
+            });
+            canv.addEventListener("mousedown",(event)=>{
+                if (event.button===0) {
+                    isDowning = true;
+                    downStartX = event.offsetX;
+                    downStartY = event.offsetY;
+                    draw(image, x, y);
+                }
+            });
+            canv.addEventListener("mouseup",(event)=>{
+                if (event.button===0) {
+                    isDowning = false;
+                    x += dx;
+                    y += dy;
+                    draw(image, x, y);
+                }
+            });
+            canv.addEventListener("wheel",(event)=>{
+                resizeByWheel(event);
+            });
+
             // ファイル選択イベントに対するリスナを追加
             fileInput.addEventListener("change", (event) => {
                 // 画像のインスタンスを取得
                 const file = event.target.files[0];
+                    // input要素でmultiple属性を指定した場合は、複数の要素を持つ配列が返る。
                 // リーダーで読み込む
                 const reader = new FileReader();
                 reader.readAsDataURL(file);
@@ -31,45 +90,111 @@
                     image = new Image();
                     image.src = imageData;
                     image.onload = () => {
-                        ctx.drawImage(image, 0, 0);
-                        // 第4,5引数で渡したpxに対応するように、拡大縮小される。
-                        // ctx.drawImage(image, 0, 0, image.width*2,image.height*2);
+                        initImageSettings();
+                        draw(image, x, y);
                     };
-                    // ctx.clearRect(0,0,canv.width,canv.height);
                 };
             });
+
+            textInput = document.getElementById("headerText");
+            textInput.addEventListener("change",(event)=>{
+                text = textInput.value;
+                draw(image, x, y);       
+            });
+
+            let headerColorRed = document.getElementById("headerColorRed");
+            headerColorRed.addEventListener("input",(event)=>{
+                hcRed = toHex(headerColorRed.value);
+                draw(image, x, y);
+            });
+            let headerColorGreen = document.getElementById("headerColorGreen");
+            headerColorGreen.addEventListener("input",(event)=>{
+                hcGreen = toHex(headerColorGreen.value);
+                draw(image, x, y);
+            });
+            let headerColorBlue = document.getElementById("headerColorBlue");
+            headerColorBlue.addEventListener("input",(event)=>{
+                hcBlue = toHex(headerColorBlue.value);
+                draw(image, x, y);
+            });
+
+            let fontColorRed = document.getElementById("fontColorRed");
+            fontColorRed.addEventListener("input",(event)=>{
+                fcRed = toHex(fontColorRed.value);
+                draw(image, x, y);
+            });
+            let fontColorGreen = document.getElementById("fontColorGreen");
+            fontColorGreen.addEventListener("input",(event)=>{
+                fcGreen = toHex(fontColorGreen.value);
+                draw(image, x, y);
+            });
+            let fontColorBlue = document.getElementById("fontColorBlue");
+            fontColorBlue.addEventListener("input",(event)=>{
+                fcBlue = toHex(fontColorBlue.value);
+                draw(image, x, y);
+            });
+
         }
-        function enlarge(){
-            scale += 0.1;
-            ctx.clearRect(0,0,canv.width,canv.height);
-            ctx.drawImage(image, 0, 0, image.width*scale, image.height*scale);
+        function toHex(value){
+            let ret = Number(value).toString(16);
+            if (ret.length<2) {
+                ret = "0" + ret;
+            }
+            return ret;
         }
-        function shrink(){
-            scale -= 0.1;
-            ctx.clearRect(0,0,canv.width,canv.height);
-            ctx.drawImage(image, 0, 0, image.width*scale, image.height*scale);
+        function draw(image, x, y){
+            ctx.clearRect(0, 0, canv.width, canv.height);
+            ctx.fillStyle = "#FFFFFF";
+            ctx.fillRect(0, 0, canv.width, canv.height);
+            drawPicture(image, x, y);
+            drawHeader();
+            drawText();
         }
-        function saveAsImage(){
-            const dataURL = canv.toDataURL();
-            // 画像の保存
-            const a = document.createElement("a");
-            a.href = dataURL;
-            a.download = "IWTSample.jpg";
-            a.click();
+        function drawText(){
+            if (textExists) {
+                ctx.font = "30px MS Mincho";
+                ctx.textAlign = "center"; 
+                ctx.fillStyle = "#"+fcRed+fcGreen+fcBlue;
+                ctx.fillText(textInput.value, canv.width/2, canv.height/8*0.75, canv.width*0.9);
+            }
+        }
+        function drawPicture(image, x, y){
+            ctx.drawImage(image, x, y, image.width * scale, image.height * scale);
+        }
+        function drawHeader(){
+            if (headerExists) {
+                ctx.fillStyle="#"+hcRed+hcGreen+hcBlue;
+                ctx.fillRect(0, 0, canv.width, canv.height/8);
+            }
+        }
+        function resizeByWheel(event){
+            scale -= event.deltaY/1000;
+            draw(image, x, y);
+        }
+        function onOffHeader(){
+            headerExists = !headerExists;
+            draw(image, x, y);
+        }
+        function onOffText(){
+            textExists = !textExists;
+            draw(image, x, y);
         }
     </script>
 </head>
 <body onload="init()">
-    <h1><span id="h1.title">ImageWithText</span></h1>
+    <h2><span id="h1.title">ImageWithText</span></h2>
     <span id="discription">画像を複数枚読み込んで、短い文章と結合して一枚の画像にします。画像を使って何かを表現したいときにどうぞ。</span><br>
-    <!-- とりあえず一つの画像の処理を試みる -->
-    <input type="file" id="file-input"><br>
-    <!-- <input type="file" id="file-input" accept=".jpg, .png, .jpeg"><br> -->
-    <!-- <input type="file" id="file-input" multiple accept=".jpg, .png, .jpeg"><br> -->
+    <span id="discription.how.to.save">画像の保存は、キャンバス内で右クリックから行うことが出来ます。</span><br>
+    <input type="file" id="file-input" multiple accept=".jpg, .png, .jpeg"><br>
     <span>↓キャンバス↓</span><br>
     <canvas id="canvas" width="500" height="500"></canvas><br>
-    <button onclick="enlarge()" style="margin-right: 10px">拡大</button>
-    <button onclick="shrink()">縮小</button><br>
-    <button onclick="saveAsImage()" style="margin-top: 5px">保存</button>
+    ヘッダー: <button onclick="onOffHeader()" style="margin-right: 10px">on/off</button>
+    R:<input type="range" min="0" max = "255" style="width: 60px;" id="headerColorRed">
+    G:<input type="range" min="0" max = "255" style="width: 60px;" id="headerColorGreen">
+    B:<input type="range" min="0" max = "255" style="width: 60px;" id="headerColorBlue"><br>
+    テキスト: <input type="text" id="headerText"><button onclick="onOffText()" style="margin-left: 5px">on/off</button>
+    R:<input type="range" min="0" max = "255" style="width: 60px;" id="fontColorRed">
+    G:<input type="range" min="0" max = "255" style="width: 60px;" id="fontColorGreen">
+    B:<input type="range" min="0" max = "255" style="width: 60px;" id="fontColorBlue"><br>
 </body>
 </html>
