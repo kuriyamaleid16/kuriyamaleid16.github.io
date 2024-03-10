@@ -181,10 +181,13 @@
         }
     </script>
 </head>
-<body onload="init()">
+<body onload="init()" style="background-color: #FAFAFA">
     <h2><span id="h1.title">ImageWithText</span></h2>
-    <span id="discription">画像を複数枚読み込んで、短い文章と結合して一枚の画像にします。画像を使って何かを表現したいときにどうぞ。</span><br>
-    <span id="discription.how.to.save">画像の保存は、キャンバス内で右クリックから行うことが出来ます。</span><br>
+    <details>
+        <summary id="summary_discription_title">説明</summary>
+        <span id="span_discription">画像を読み込んで、短い文章と結合して一枚の画像にします。画像を使って何かを表現したいときにどうぞ。</span><br>
+        <span id="span_discription.how.to.save">画像の保存は、キャンバス内で右クリックから行うことが出来ます。</span>
+    </details>
     <input type="file" id="file-input" multiple accept=".jpg, .png, .jpeg"><br>
     <span>↓キャンバス↓</span><br>
     <canvas id="canvas" width="500" height="500"></canvas><br>
