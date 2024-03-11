@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <!-- <meta http-equiv='X-UA-Compatible' content='IE=edge'> -->
+    <title>Canvas Selection Test</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <!-- <link rel='stylesheet' type='text/css' media='screen' href='main.css'>
+    <script src='main.js'></script> -->
+    <script>
+        let canvs = new Array();
+        let shownCanvas;
+        let canvasViewPort;
+        let pullDownList;
+        let arraTypeSelector;
+        let arraSetDiv;
+        function init(){
+            // div要素を取得
+            canvasViewPort = document.getElementById("canvasViewPort");
+            // canvas要素を生成
+            canvs.push(getCanvasAndContext("#FF0000"));
+            canvs.push(getCanvasAndContext("#00FF00"));
+            canvs.push(getCanvasAndContext("#0000FF"));
+            canvs.push(getCanvasAndContext("#000000"));
+            // canvasの要素数に基づきoptions要素を生成し、select要素に追加
+            pullDownList = document.getElementById("canvasSelector");
+            for(let i=0;i<canvs.length;i++){
+                let option = getOption(i, "canvas"+i);
+                pullDownList.appendChild(option);
+            }
+            // 最初には,0番目のcanvas要素を表示しておく
+            shownCanvas = canvasViewPort.appendChild(canvs[0]);
+            // select要素 pullDownListにイベントリスナを追加
+            // 変更されたら、選択されたoption要素を読み込み、それに対応するcanvas要素を表示する。 
+            pullDownList.addEventListener("change",(event)=>{
+                console.log("the pulldownlist changed");
+                removeCanvas(shownCanvas);
+                shownCanvas = canvs[pullDownList.selectedOptions[0].value];
+                canvasViewPort.appendChild(shownCanvas);
+            });
+            // console.log(document.body.childNodes);
+
+            // select要素 arraTypeSelector を取得
+            arraTypeSelector = document.getElementById("arraTypeSelector");
+            // div要素 arraSetDiv を取得
+            arraSetDiv = document.getElementById("arraSetDiv");
+            setUpASD("1p");
+            //  arragementTypeSelector のイベントリスナを追加
+            arraTypeSelector.addEventListener("change",(event)=>{
+                // 選択された option要素の値から、arraSetDiv要素の構成を変更
+                setUpASD(arraTypeSelector.selectedOptions[0].value);
+            });
+        }
+        function setUpASD(value){
+            // ASD: arra. set div.
+            
+            // すべてのサブノードを取り除く
+            const len = arraSetDiv.childNodes.length;
+            for(let i = len-1; i>-1; i--){
+                arraSetDiv.removeChild(arraSetDiv.childNodes[i]);
+            }
+
+            // 追加していく
+            if (value==="1p") {
+                arraSetDiv.appendChild(cloneSelectElement(pullDownList, "pdlClone-"+value));
+            }
+            if (value==="2p-hor") {
+                arraSetDiv.appendChild(cloneSelectElement(pullDownList, "pdlClone-"+value+"-a"));
+                arraSetDiv.appendChild(cloneSelectElement(pullDownList, "pdlClone-"+value+"-b"));
+            }
+            if (value==="2p-ver") {
+                arraSetDiv.appendChild(cloneSelectElement(pullDownList, "pdlClone-"+value+"-a"));
+                arraSetDiv.appendChild(document.createElement("br"));
+                arraSetDiv.appendChild(cloneSelectElement(pullDownList, "pdlClone-"+value+"-b"));
+            }
+            if (value==="4p-hor") {
+                arraSetDiv.appendChild(cloneSelectElement(pullDownList, "pdlClone-"+value+"-a"));
+                arraSetDiv.appendChild(cloneSelectElement(pullDownList, "pdlClone-"+value+"-b"));
+                arraSetDiv.appendChild(cloneSelectElement(pullDownList, "pdlClone-"+value+"-c"));
+                arraSetDiv.appendChild(cloneSelectElement(pullDownList, "pdlClone-"+value+"-d"));
+            }
+            if (value==="4p-ver") {
+                arraSetDiv.appendChild(cloneSelectElement(pullDownList, "pdlClone-"+value+"-a"));
+                arraSetDiv.appendChild(document.createElement("br"));
+                arraSetDiv.appendChild(cloneSelectElement(pullDownList, "pdlClone-"+value+"-b"));
+                arraSetDiv.appendChild(document.createElement("br"));
+                arraSetDiv.appendChild(cloneSelectElement(pullDownList, "pdlClone-"+value+"-c"));
+                arraSetDiv.appendChild(document.createElement("br"));
+                arraSetDiv.appendChild(cloneSelectElement(pullDownList, "pdlClone-"+value+"-d"));
+            }
+            if (value==="4p-squ") {
+                arraSetDiv.appendChild(cloneSelectElement(pullDownList, "pdlClone-"+value+"-a"));
+                arraSetDiv.appendChild(cloneSelectElement(pullDownList, "pdlClone-"+value+"-b"));
+                arraSetDiv.appendChild(document.createElement("br"));
+                arraSetDiv.appendChild(cloneSelectElement(pullDownList, "pdlClone-"+value+"-c"));
+                arraSetDiv.appendChild(cloneSelectElement(pullDownList, "pdlClone-"+value+"-d"));
+            }
+        }
+        function cloneSelectElement(element,id){
+            let elem = element.cloneNode(true);
+            // Node(Elementのもっと抽象的なオブジェクト)を複製するが、任意で追加されたイベントリスナは複製されない。
+            elem.id = id;
+            return elem;
+        }
+        function getOption(value, textContent){
+            let opt = document.createElement("option");
+            opt.value = value;
+            opt.textContent = textContent;
+            return opt;
+        }
+        function getCanvasAndContext(contextColor){
+            let canv = document.createElement("canvas");
+            canv.width = 500;
+            canv.height = 500;
+            let ctx = canv.getContext("2d");
+            ctx.fillStyle = contextColor;
+            ctx.fillRect(0, 0, canv.width, canv.height);
+            return canv;
+                // なぜか複数の値を返せないので、後日確認
+        }
+        function removeCanvas(elem){
+            canvasViewPort.removeChild(elem);
+        }
+    </script>
+</head>
+<body onload="init()" style="margin-left: 15px">
+    canvas to edit:
+    <select id="canvasSelector">
+    </select><br>
+    <button style="margin-bottom: 3px;" onclick="window.open('preview')">check the preview</button><br>
+    <div id="canvasViewPort" style="width: 500px; height:500px"></div>
+    segmentation format:
+    <select id="arraTypeSelector">
+        <option value="1p">1 panel</option>
+        <option value="2p-hor">2 panels in a horizontal row</option>
+        <option value="2p-ver">2 panels in a vertical row</option>
+        <option value="4p-hor">4 panels in a horizontal row</option>
+        <option value="4p-ver">4 panels in a vertical row</option>
+        <option value="4p-squ">4 panels in a square</option>
+    </select><br>
+    arrangement:
+    <div id="arraSetDiv"></div>
+</body>
+</html>
